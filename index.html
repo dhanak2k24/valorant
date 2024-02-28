@@ -1,243 +1,230 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <link rel="stylesheet" href="style.css" />
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Valorant Tournament Registration</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
-      background-image: url("https://cdn.vox-cdn.com/thumbor/iaRO8ZRmYP7vNgG5yPiBME1G1Wg=/0x0:3011x1447/1200x675/filters:focal(1123x329:1603x809)/cdn.vox-cdn.com/uploads/chorus_image/image/66954486/VALORANT_Jett_Red_crop.0.jpg");
-    }
-    header {
-      text-align: center;
-      color: rgb(255, 255, 255);
-    }
-    form {
-      max-width: 600px;
-      margin: auto;
-      position: relative; /* Added to make loader positioning relative to the form */
-    }
-    label {
-      display: block;
-      margin-bottom: 8px;
-    }
-    input,
-    select {
-      width: 100%;
-      padding: 8px;
-      margin-bottom: 15px;
-      box-sizing: border-box;
-    }
-    button {
-      background-color: #333;
-      color: white;
-      padding: 10px 15px;
-      border: none;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #555;
-    }
-    .loader {
-      border: 8px solid #fc0303;
-      border-radius: 50%;
-      border-top: 8px solid #000000;
-      width: 50px;
-      height: 50px;
-      animation: spin 2s linear infinite;
-      display: none;
-      position: absolute; /* Updated to position the loader absolutely within the form */
-      top: 50%;
-      left: calc(50% + 80px); /* Adjusted left position */
-      transform: translate(-50%, -50%);
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-  </style>
-  <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
-</head>
-<body>
-  <header>
-    <h1>Valorant Tournament Registration</h1>
-  </header>
-
-  <form
-    action="submit_registration.php"
-    method="post"
-    name="submit-to-google-sheet"
-    enctype="multipart/form-data"
-  >
-    <label for="teamName">Team Name:</label>
-    <input type="text" id="teamName" name="teamName" required />
-
-    <label for="captainName">Captain's Name:</label>
-<input type="text" id="captainName" name="captainName" required />
-
-<label for="captainValorantID">Captain's Valorant ID:</label>
-<input
-  type="text"
-  id="captainValorantID"
-  name="captainValorantID"
-  required
-/>
-
-<label for="teamMembers">Team Members (Min 4, Max 5):</label>
-<ol>
-  <!-- Input fields for team members -->
-  <li>
-    <label for="member1ValorantID">Member 1 Valorant ID:</label>
-    <input
-      type="text"
-      id="member1ValorantID"
-      name="member1ValorantID"
-      required
-    />
-  </li>
-  <li>
-    <label for="member2ValorantID">Member 2 Valorant ID:</label>
-    <input
-      type="text"
-      id="member2ValorantID"
-      name="member2ValorantID"
-      required
-    />
-  </li>
-  <li>
-    <label for="member3ValorantID">Member 3 Valorant ID:</label>
-    <input
-      type="text"
-      id="member3ValorantID"
-      name="member3ValorantID"
-      required
-    />
-  </li>
-  <li>
-    <label for="member4ValorantID">Member 4 Valorant ID:</label>
-    <input
-      type="text"
-      id="member4ValorantID"
-      name="member4ValorantID"
-      required
-    />
-  </li>
-  <li>
-    <label for="member5ValorantID"
-      >Member 5 Valorant ID(substitute):</label
-    >
-    <input type="text" id="member5ValorantID" name="member5ValorantID" />
-  </li>
-  <!-- Add more member fields as needed -->
-
-
-<!-- Loader Element -->
-
-    <!-- ... (other form elements) ... -->
-
-    <!-- Loader Element -->
-    <div class="loader" id="loader"></div>
-
-    <label for="payment">Registration fees- ₹199 </label>
-    <div id="qrcode"></div>
-
-    <script>
-      // Replace 'YourData' with the actual data you want in the QR code
-      var qrcode = new QRCode(document.getElementById("qrcode"), {
-        text: "YourData",
-        width: 128,
-        height: 128,
-      });
-    </script>
-    <label for="image">Upload a screenshot of payment:</label>
-    <input type="file" id="image" name="image" accept="image/*" required />
-    <br />
-
-    <!-- Register Button and Loader -->
-    <div style="position: relative;">
-      <button type="submit">Register</button>
-      <div class="loader" id="loader"></div>
-    </div>
-
-    <br />
-    <span id="success"> </span><br />
-    <label>wait till successfully registered appears</label>
-
-    <script>
-      const scriptURL =
-        "https://script.google.com/macros/s/AKfycbxCbJ3GS-gDYsvF8LwzkkLIbIIYRTSmP3n1P3CmQvo9J55y6YbgCOu1ycxJgOuIo7Kn/exec";
-      const form = document.forms["submit-to-google-sheet"];
-      const success = document.getElementById("success");
-      const loader = document.getElementById("loader");
-
-      form.addEventListener("submit", (e) => {
-        e.preventDefault();
-
-        // Show loader
-        loader.style.display = "block";
-
-        // Collect form data
-        const formData = new FormData(form);
-        const formDataObject = {};
-
-        // Exclude the image field from regular form data
-        formData.delete("image");
-
-        // Process other fields
-        formData.forEach((value, key) => {
-          formDataObject[key] = value;
-        });
-
-        // Get the image data separately
-        processImage().then((imageData) => {
-          formDataObject["image"] = imageData;
-
-          // Convert the form data to JSON
-          const jsonData = JSON.stringify(formDataObject);
-
-          // Send the JSON data to the Google Apps Script
-          fetch(scriptURL, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: jsonData,
-            mode: "no-cors",
-            redirect: 'follow'
-          })
-            .then((response) => {
-              // Hide loader on successful submission
-              loader.style.display = "none";
-
-              success.innerHTML = "Successfully registered";
-            })
-            .catch((error) => {
-              // Hide loader on error
-              loader.style.display = "none";
-
-              console.error("Error!", error.message);
-            });
-        });
-      });
-
-      function processImage() {
-        return new Promise((resolve) => {
-          const imageInput = document.getElementById("image");
-          const imageFile = imageInput.files[0];
-          const reader = new FileReader();
-
-          reader.onloadend = () => {
-            resolve(reader.result.split(",")[1]);
-          };
-
-          reader.readAsDataURL(imageFile);
-        });
+  <head>
+    <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Valorant Tournament Registration</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        background-image: url("https://cdn.vox-cdn.com/thumbor/iaRO8ZRmYP7vNgG5yPiBME1G1Wg=/0x0:3011x1447/1200x675/filters:focal(1123x329:1603x809)/cdn.vox-cdn.com/uploads/chorus_image/image/66954486/VALORANT_Jett_Red_crop.0.jpg");
       }
+      header {
+        text-align: center;
+        color: rgb(255, 255, 255);
+      }
+      form {
+        max-width: 600px;
+        margin: auto;
+      }
+      label {
+        display: block;
+        margin-bottom: 8px;
+      }
+      input,
+      select {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 15px;
+        box-sizing: border-box;
+      }
+      button {
+        background-color: #333;
+        color: white;
+        padding: 10px 15px;
+        border: none;
+        cursor: pointer;
+      }
+      button:hover {
+        background-color: #555;
+      }
+      .lds-dual-ring {
+            display: none;
+            margin: auto;
+            width: 64px;
+            height: 64px;
+        }
+
+        .lds-dual-ring:after {
+            content: " ";
+            display: block;
+            width: 46px;
+            height: 46px;
+            margin: 1px;
+            border-radius: 50%;
+            border: 5px solid #ff0000;
+            border-color: #000000 transparent #000000 transparent;
+            animation: lds-dual-ring 1.2s linear infinite;
+        }
+
+        @keyframes lds-dual-ring {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+    <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
+  </head>
+  <body>
+    <header>
+      <h1>Valorant Tournament Registration</h1>
+    </header>
+
+    <form
+      action="submit_registration.php"
+      method="post"
+      name="submit-to-google-sheet"
+      enctype="multipart/form-data"
+    >
+      <label for="teamName">Team Name:</label>
+      <input type="text" id="teamName" name="teamName" required />
+
+      <label for="captainName">Captain's Name:</label>
+      <input type="text" id="captainName" name="captainName" required />
+
+      <label for="captainValorantID">Captain's Valorant ID:</label>
+      <input
+        type="text"
+        id="captainValorantID"
+        name="captainValorantID"
+        required
+      />
+
+      <label for="teamMembers">Team Members (Min 5, Max 6):</label>
+      <ol>
+        <!-- Input fields for team members -->
+        <li>
+          <label for="member1ValorantID">Member 1 Valorant ID:</label>
+          <input
+            type="text"
+            id="member1ValorantID"
+            name="member1ValorantID"
+            required
+          />
+        </li>
+        <li>
+          <label for="member2ValorantID">Member 2 Valorant ID:</label>
+          <input
+            type="text"
+            id="member2ValorantID"
+            name="member2ValorantID"
+            required
+          />
+        </li>
+        <li>
+          <label for="member3ValorantID">Member 3 Valorant ID:</label>
+          <input
+            type="text"
+            id="member3ValorantID"
+            name="member3ValorantID"
+            required
+          />
+        </li>
+        <li>
+          <label for="member4ValorantID">Member 4 Valorant ID:</label>
+          <input
+            type="text"
+            id="member4ValorantID"
+            name="member4ValorantID"
+            required
+          />
+        </li>
+        <li>
+          <label for="member5ValorantID"
+            >Member 5 Valorant ID(substitute):</label
+          >
+          <input type="text" id="member5ValorantID" name="member5ValorantID" />
+        </li>
+        <!-- Add more member fields as needed -->
+      </ol>
+      <label for="payment">UPLOAD THE REGISTRATION SCREENSHOT</label>
+
+      <input type="file" id="image" name="image" accept="image/*" required />
+      <br />
+      <button type="submit">Register</button><br />
+      <span id="success"> </span><br />
+      <div class="lds-dual-ring" id="loading-spinner"></div>
+      <label>wait till successful registered appears</label>
+    </form>
+    <script>
+      
+  const scriptURL =
+    "https://script.google.com/macros/s/AKfycbxCbJ3GS-gDYsvF8LwzkkLIbIIYRTSmP3n1P3CmQvo9J55y6YbgCOu1ycxJgOuIo7Kn/exec";
+  const form = document.forms["submit-to-google-sheet"];
+  const success = document.getElementById("success");
+  const loadingSpinner = document.getElementById("loading-spinner");
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    // Show loading spinner
+    loadingSpinner.style.display = "block";
+
+    // Collect form data
+    const formData = new FormData(form);
+    const formDataObject = {};
+
+    // Exclude the image field from regular form data
+    formData.delete("image");
+
+    // Process other fields
+    formData.forEach((value, key) => {
+      formDataObject[key] = value;
+    });
+
+    // Get the image data separately
+    processImage().then((imageData) => {
+      formDataObject["image"] = imageData;
+
+      // Convert the form data to JSON
+      const jsonData = JSON.stringify(formDataObject);
+
+      // Send the JSON data to the Google Apps Script
+      fetch(scriptURL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: jsonData,
+        mode: "no-cors",
+        redirect: 'follow'
+      })
+        .then((response) => {
+          // Hide loading spinner on successful submission
+          loadingSpinner.style.display = "none";
+
+          // Show success message
+          success.innerHTML = "Successfully registered";
+        })
+        .catch((error) => {
+          // Hide loading spinner on error
+          loadingSpinner.style.display = "none";
+
+          console.error("Error!", error.message);
+        });
+    });
+  });
+
+  function processImage() {
+    return new Promise((resolve) => {
+      const imageInput = document.getElementById("image");
+      const imageFile = imageInput.files[0];
+      const reader = new FileReader();
+
+      reader.onloadend = () => {
+        resolve(reader.result.split(",")[1]);
+      };
+
+      reader.readAsDataURL(imageFile);
+    });
+  }
+
+
     </script>
-  </form>
-</body>
+  </body>
 </html>
